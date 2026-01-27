@@ -1,4 +1,5 @@
 #include "io.h"
+#include "common/defines.h"
 
 #include <msp430.h>
 #include <stdint.h>
@@ -55,7 +56,8 @@ static const struct io_config io_initial_configs[IO_PORT_CNT * IO_PIN_CNT_PER_PO
 
 void io_init(void)
 {
-    for (io_e io = (io_e)IO_10; io < ARRAY_SIZE(io_initial_configs); io++) {
+    io_e io;
+    for (io = (io_e)IO_10; io < ARRAY_SIZE(io_initial_configs); io++) {
         io_configure(io, &io_initial_configs[io]);
     }
 }
