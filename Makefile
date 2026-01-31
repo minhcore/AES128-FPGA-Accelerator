@@ -14,7 +14,8 @@ DEVICE = GW1NR-LV9QN88PC6/I5
 SRCS = \
 	src/uart/uart_rx.v \
 	src/uart/uart_tx.v \
-	src/top/top_uart_echo.v
+	src/top/top_uart_echo.v \
+	src/fifo/sync_fifo.v \
 
 YOSYS = yosys
 NEXTPNR = nextpnr-gowin
