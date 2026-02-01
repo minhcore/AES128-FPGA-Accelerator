@@ -31,10 +31,12 @@ module uart_rx #(
   // sync rx signal
   always @(posedge clk) begin
     if (!reset_n) begin
+      rx_sync1 <= 1;
       rx_sync2 <= 1;
+    end else begin
+      rx_sync1 <= uart_rx;
+      rx_sync2 <= rx_sync1;
     end
-    rx_sync1 <= uart_rx;
-    rx_sync2 <= rx_sync1;
   end
 
   // state transition logic
@@ -78,8 +80,9 @@ module uart_rx #(
   always @(posedge clk) begin
     if (!reset_n) begin
       rx_current_state <= RX_STATE_IDLE;
+    end else begin
+      rx_current_state <= rx_next_state;
     end
-    rx_current_state <= rx_next_state;
   end
 
   // state logic
