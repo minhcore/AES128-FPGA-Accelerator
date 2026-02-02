@@ -16,6 +16,8 @@ SRCS = \
 	src/uart/uart_tx.v \
 	src/top/top_uart_echo.v \
 	src/fifo/sync_fifo.v \
+	src/packaging/packaging.v \
+	
 
 YOSYS = yosys
 NEXTPNR = nextpnr-gowin
