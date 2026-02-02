@@ -11,21 +11,25 @@ module packaging (
 );
 
   localparam IDLE = 0;
-  localparam GET_HEADER = 1;
-  localparam REQ_DATA = 2;
-  localparam GET_DATA = 3;
-  localparam REQ_CHECK_SUM = 4;
-  localparam CHECK_SUM = 5;
-  localparam REQ_FOOTER = 6;
-  localparam CHECK_FOOTER = 7;
+  localparam WAIT_HEADER = 1;
+  localparam GET_HEADER = 2;
+  localparam REQ_DATA = 3;
+  localparam WAIT_DATA = 4;
+  localparam GET_DATA = 5;
+  localparam REQ_CHECK_SUM = 6;
+  localparam WAIT_CHECK_SUM = 7;
+  localparam CHECK_SUM = 8;
+  localparam REQ_FOOTER = 9;
+  localparam WAIT_FOOTER = 10;
+  localparam CHECK_FOOTER = 11;
 
   localparam DATA_HEADER = 8'hAA;
   localparam KEY_HEADER = 8'hBB;
   localparam FOOTER = 8'h55;
 
-  reg [2:0] state = 0;
+  reg [3:0] state = 0;
   reg [3:0] byte_count = 0;
-  reg check_sum_result = 0;
+  reg [7:0] check_sum_result = 0;
   reg is_key = 0;
 
   always @(posedge clk) begin
@@ -39,23 +43,24 @@ module packaging (
       fifo_read_enable <= 0;
     end else begin
       data_valid <= 0;
-      key_valid  <= 0;
+      key_valid <= 0;
       error_flag <= 0;
+      fifo_read_enable <= 0;
       case (state)
         IDLE: begin
           byte_count <= 0;
           check_sum_result <= 0;
-          fifo_read_enable <= 0;
           if (!fifo_empty) begin
             fifo_read_enable <= 1;
-            state <= GET_HEADER;
-          end else begin
-            state <= IDLE;
+            state <= WAIT_HEADER;
           end
         end
 
+        WAIT_HEADER: begin
+          state <= GET_HEADER;
+        end
+
         GET_HEADER: begin
-          fifo_read_enable <= 0;
           if (fifo_data_in == DATA_HEADER) begin
             is_key <= 0;
             check_sum_result <= fifo_data_in;
@@ -73,14 +78,15 @@ module packaging (
         REQ_DATA: begin
           if (!fifo_empty) begin
             fifo_read_enable <= 1;
-            state <= GET_DATA;
-          end else begin
-            state <= REQ_DATA;
+            state <= WAIT_DATA;
           end
         end
 
+        WAIT_DATA: begin
+          state <= GET_DATA;
+        end
+
         GET_DATA: begin
-          fifo_read_enable <= 0;
           data_out <= {data_out[119:0], fifo_data_in};
           check_sum_result <= check_sum_result ^ fifo_data_in;
           byte_count <= byte_count + 1;
@@ -94,14 +100,15 @@ module packaging (
         REQ_CHECK_SUM: begin
           if (!fifo_empty) begin
             fifo_read_enable <= 1;
-            state <= CHECK_SUM;
-          end else begin
-            state <= REQ_CHECK_SUM;
+            state <= WAIT_CHECK_SUM;
           end
         end
 
+        WAIT_CHECK_SUM: begin
+          state <= CHECK_SUM;
+        end
+
         CHECK_SUM: begin
-          fifo_read_enable <= 0;
           if (fifo_data_in == check_sum_result) begin
             state <= REQ_FOOTER;
           end else begin
@@ -113,14 +120,15 @@ module packaging (
         REQ_FOOTER: begin
           if (!fifo_empty) begin
             fifo_read_enable <= 1;
-            state <= CHECK_FOOTER;
-          end else begin
-            state <= REQ_FOOTER;
+            state <= WAIT_FOOTER;
           end
         end
 
+        WAIT_FOOTER: begin
+          state <= CHECK_FOOTER;
+        end
+
         CHECK_FOOTER: begin
-          fifo_read_enable <= 0;
           if (fifo_data_in == FOOTER) begin
             if (is_key) begin
               key_valid  <= 1;
