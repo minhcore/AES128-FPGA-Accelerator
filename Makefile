@@ -14,8 +14,12 @@ DEVICE = GW1NR-LV9QN88PC6/I5
 SRCS = \
 	src/uart/uart_rx.v \
 	src/uart/uart_tx.v \
-	src/top/top_uart_echo.v \
 	src/fifo/sync_fifo.v \
+	src/packaging/packaging.v \
+	src/top/top_uart_echo.v \
+	src/top/top_packaging.v \
+	tools/pulse_stretcher.v \
+	
 
 YOSYS = yosys
 NEXTPNR = nextpnr-gowin
@@ -25,7 +29,7 @@ VVP = vvp
 LOADER = openFPGALoader
 FORMAT = verible-verilog-format
 
-.PHONY: all syn pnr pack sim flash clean lint wave
+.PHONY: all syn pnr pack sim flash clean clean_syn clean_pnr clean_pack lint wave
 
 all: pack
 
@@ -55,6 +59,15 @@ flash: $(BUILD_DIR)/$(PROJECT).fs
 
 clean:
 	rm -rf $(BUILD_DIR) $(SIM_DIR)
+
+clean_syn:
+	rm -f $(BUILD_DIR)/$(PROJECT).json
+
+clean_pnr:
+	rm -f $(BUILD_DIR)/$(PROJECT).pnr
+
+clean_pack:
+	rm -f $(BUILD_DIR)/$(PROJECT).fs
 
 lint:
 	$(IVERILOG) -Wall -tnull $(SRCS)
