@@ -38,21 +38,21 @@ def send_packet(ser, is_key=False):
 try:
     with serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1) as ser:
         print(f"Connected to {SERIAL_PORT}")
-        """
+        
         #Test 1: Gửi 10 gói Data chuẩn
         for i in range(10):
             send_packet(ser, is_key=False)
             time.sleep(0.5) # Delay để mắt cậu kịp nhìn LED nháy
-        
+        """
         #Test 2: Gửi 5 gói Key chuẩn
         for i in range(5):
             send_packet(ser, is_key=True)
             time.sleep(0.5)
-        """
+        
         #Test 3: Gửi Gói Rác (Để check đèn đỏ error_flag)
         print("Sending BAD packet...")
         bad_packet = b'\xAA' + b'\x00'*16 + b'\xFF' + b'\x55' # Sai checksum
         ser.write(bad_packet)
-        
+        """
 except serial.SerialException as e:
     print(f"Error opening serial port: {e}")
