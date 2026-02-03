@@ -16,6 +16,7 @@ SRCS = \
 	src/uart/uart_tx.v \
 	src/fifo/sync_fifo.v \
 	src/packaging/packaging.v \
+	src/aes_core/aes_sbox.v \
 	src/top/top_uart_echo.v \
 	src/top/top_packaging.v \
 	tools/pulse_stretcher.v \
