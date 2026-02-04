@@ -16,7 +16,13 @@ SRCS = \
 	src/uart/uart_tx.v \
 	src/fifo/sync_fifo.v \
 	src/packaging/packaging.v \
-	src/aes_core/aes_sbox.v \
+	src/aes_core/sbox.v \
+	src/aes_core/rcon.v \
+	src/aes_core/rot_word.v \
+	src/aes_core/sub_word.v \
+	src/aes_core/g_function.v \
+	src/aes_core/compute_round_key.v \
+	src/aes_core/aes_key_expand.v \
 	src/top/top_uart_echo.v \
 	src/top/top_packaging.v \
 	tools/pulse_stretcher.v \
