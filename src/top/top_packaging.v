@@ -8,6 +8,7 @@ module top_packaging (
   wire data_valid;
   wire key_valid;
   wire error_flag;
+  wire fifo_empty;
 
   wire rx_done;
   wire [7:0] rx_data;
