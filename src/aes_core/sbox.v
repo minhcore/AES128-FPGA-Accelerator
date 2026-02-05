@@ -1,282 +1,327 @@
 module sbox (
-    input [7:0] in,
-    output reg [7:0] out
+    input            clk,
+    input            reset_n,
+    input            start,
+    input      [7:0] in,
+    output reg [7:0] out,
+    output reg       valid
 );
 
-  always @(*) begin
-    case (in)
-      8'h00: out = 8'h63;
-      8'h01: out = 8'h7c;
-      8'h02: out = 8'h77;
-      8'h03: out = 8'h7b;
-      8'h04: out = 8'hf2;
-      8'h05: out = 8'h6b;
-      8'h06: out = 8'h6f;
-      8'h07: out = 8'hc5;
-      8'h08: out = 8'h30;
-      8'h09: out = 8'h01;
-      8'h0a: out = 8'h67;
-      8'h0b: out = 8'h2b;
-      8'h0c: out = 8'hfe;
-      8'h0d: out = 8'hd7;
-      8'h0e: out = 8'hab;
-      8'h0f: out = 8'h76;
+    (* ram_style = "block" *)
+    reg [7:0] sbox_mem[0:255];
+    reg [7:0] addr;
+    reg valid_delay;
 
-      8'h10: out = 8'hca;
-      8'h11: out = 8'h82;
-      8'h12: out = 8'hc9;
-      8'h13: out = 8'h7d;
-      8'h14: out = 8'hfa;
-      8'h15: out = 8'h59;
-      8'h16: out = 8'h47;
-      8'h17: out = 8'hf0;
-      8'h18: out = 8'had;
-      8'h19: out = 8'hd4;
-      8'h1a: out = 8'ha2;
-      8'h1b: out = 8'haf;
-      8'h1c: out = 8'h9c;
-      8'h1d: out = 8'ha4;
-      8'h1e: out = 8'h72;
-      8'h1f: out = 8'hc0;
+    initial begin
+        // Row 0x00
+        sbox_mem[8'h00] = 8'h63;
+        sbox_mem[8'h01] = 8'h7c;
+        sbox_mem[8'h02] = 8'h77;
+        sbox_mem[8'h03] = 8'h7b;
+        sbox_mem[8'h04] = 8'hf2;
+        sbox_mem[8'h05] = 8'h6b;
+        sbox_mem[8'h06] = 8'h6f;
+        sbox_mem[8'h07] = 8'hc5;
+        sbox_mem[8'h08] = 8'h30;
+        sbox_mem[8'h09] = 8'h01;
+        sbox_mem[8'h0a] = 8'h67;
+        sbox_mem[8'h0b] = 8'h2b;
+        sbox_mem[8'h0c] = 8'hfe;
+        sbox_mem[8'h0d] = 8'hd7;
+        sbox_mem[8'h0e] = 8'hab;
+        sbox_mem[8'h0f] = 8'h76;
 
-      8'h20: out = 8'hb7;
-      8'h21: out = 8'hfd;
-      8'h22: out = 8'h93;
-      8'h23: out = 8'h26;
-      8'h24: out = 8'h36;
-      8'h25: out = 8'h3f;
-      8'h26: out = 8'hf7;
-      8'h27: out = 8'hcc;
-      8'h28: out = 8'h34;
-      8'h29: out = 8'ha5;
-      8'h2a: out = 8'he5;
-      8'h2b: out = 8'hf1;
-      8'h2c: out = 8'h71;
-      8'h2d: out = 8'hd8;
-      8'h2e: out = 8'h31;
-      8'h2f: out = 8'h15;
+        // Row 0x10
+        sbox_mem[8'h10] = 8'hca;
+        sbox_mem[8'h11] = 8'h82;
+        sbox_mem[8'h12] = 8'hc9;
+        sbox_mem[8'h13] = 8'h7d;
+        sbox_mem[8'h14] = 8'hfa;
+        sbox_mem[8'h15] = 8'h59;
+        sbox_mem[8'h16] = 8'h47;
+        sbox_mem[8'h17] = 8'hf0;
+        sbox_mem[8'h18] = 8'had;
+        sbox_mem[8'h19] = 8'hd4;
+        sbox_mem[8'h1a] = 8'ha2;
+        sbox_mem[8'h1b] = 8'haf;
+        sbox_mem[8'h1c] = 8'h9c;
+        sbox_mem[8'h1d] = 8'ha4;
+        sbox_mem[8'h1e] = 8'h72;
+        sbox_mem[8'h1f] = 8'hc0;
 
-      8'h30: out = 8'h04;
-      8'h31: out = 8'hc7;
-      8'h32: out = 8'h23;
-      8'h33: out = 8'hc3;
-      8'h34: out = 8'h18;
-      8'h35: out = 8'h96;
-      8'h36: out = 8'h05;
-      8'h37: out = 8'h9a;
-      8'h38: out = 8'h07;
-      8'h39: out = 8'h12;
-      8'h3a: out = 8'h80;
-      8'h3b: out = 8'he2;
-      8'h3c: out = 8'heb;
-      8'h3d: out = 8'h27;
-      8'h3e: out = 8'hb2;
-      8'h3f: out = 8'h75;
+        // Row 0x20
+        sbox_mem[8'h20] = 8'hb7;
+        sbox_mem[8'h21] = 8'hfd;
+        sbox_mem[8'h22] = 8'h93;
+        sbox_mem[8'h23] = 8'h26;
+        sbox_mem[8'h24] = 8'h36;
+        sbox_mem[8'h25] = 8'h3f;
+        sbox_mem[8'h26] = 8'hf7;
+        sbox_mem[8'h27] = 8'hcc;
+        sbox_mem[8'h28] = 8'h34;
+        sbox_mem[8'h29] = 8'ha5;
+        sbox_mem[8'h2a] = 8'he5;
+        sbox_mem[8'h2b] = 8'hf1;
+        sbox_mem[8'h2c] = 8'h71;
+        sbox_mem[8'h2d] = 8'hd8;
+        sbox_mem[8'h2e] = 8'h31;
+        sbox_mem[8'h2f] = 8'h15;
 
-      8'h40: out = 8'h09;
-      8'h41: out = 8'h83;
-      8'h42: out = 8'h2c;
-      8'h43: out = 8'h1a;
-      8'h44: out = 8'h1b;
-      8'h45: out = 8'h6e;
-      8'h46: out = 8'h5a;
-      8'h47: out = 8'ha0;
-      8'h48: out = 8'h52;
-      8'h49: out = 8'h3b;
-      8'h4a: out = 8'hd6;
-      8'h4b: out = 8'hb3;
-      8'h4c: out = 8'h29;
-      8'h4d: out = 8'he3;
-      8'h4e: out = 8'h2f;
-      8'h4f: out = 8'h84;
+        // Row 0x30
+        sbox_mem[8'h30] = 8'h04;
+        sbox_mem[8'h31] = 8'hc7;
+        sbox_mem[8'h32] = 8'h23;
+        sbox_mem[8'h33] = 8'hc3;
+        sbox_mem[8'h34] = 8'h18;
+        sbox_mem[8'h35] = 8'h96;
+        sbox_mem[8'h36] = 8'h05;
+        sbox_mem[8'h37] = 8'h9a;
+        sbox_mem[8'h38] = 8'h07;
+        sbox_mem[8'h39] = 8'h12;
+        sbox_mem[8'h3a] = 8'h80;
+        sbox_mem[8'h3b] = 8'he2;
+        sbox_mem[8'h3c] = 8'heb;
+        sbox_mem[8'h3d] = 8'h27;
+        sbox_mem[8'h3e] = 8'hb2;
+        sbox_mem[8'h3f] = 8'h75;
 
-      8'h50: out = 8'h53;
-      8'h51: out = 8'hd1;
-      8'h52: out = 8'h00;
-      8'h53: out = 8'hed;
-      8'h54: out = 8'h20;
-      8'h55: out = 8'hfc;
-      8'h56: out = 8'hb1;
-      8'h57: out = 8'h5b;
-      8'h58: out = 8'h6a;
-      8'h59: out = 8'hcb;
-      8'h5a: out = 8'hbe;
-      8'h5b: out = 8'h39;
-      8'h5c: out = 8'h4a;
-      8'h5d: out = 8'h4c;
-      8'h5e: out = 8'h58;
-      8'h5f: out = 8'hcf;
+        // Row 0x40
+        sbox_mem[8'h40] = 8'h09;
+        sbox_mem[8'h41] = 8'h83;
+        sbox_mem[8'h42] = 8'h2c;
+        sbox_mem[8'h43] = 8'h1a;
+        sbox_mem[8'h44] = 8'h1b;
+        sbox_mem[8'h45] = 8'h6e;
+        sbox_mem[8'h46] = 8'h5a;
+        sbox_mem[8'h47] = 8'ha0;
+        sbox_mem[8'h48] = 8'h52;
+        sbox_mem[8'h49] = 8'h3b;
+        sbox_mem[8'h4a] = 8'hd6;
+        sbox_mem[8'h4b] = 8'hb3;
+        sbox_mem[8'h4c] = 8'h29;
+        sbox_mem[8'h4d] = 8'he3;
+        sbox_mem[8'h4e] = 8'h2f;
+        sbox_mem[8'h4f] = 8'h84;
 
-      8'h60: out = 8'hd0;
-      8'h61: out = 8'hef;
-      8'h62: out = 8'haa;
-      8'h63: out = 8'hfb;
-      8'h64: out = 8'h43;
-      8'h65: out = 8'h4d;
-      8'h66: out = 8'h33;
-      8'h67: out = 8'h85;
-      8'h68: out = 8'h45;
-      8'h69: out = 8'hf9;
-      8'h6a: out = 8'h02;
-      8'h6b: out = 8'h7f;
-      8'h6c: out = 8'h50;
-      8'h6d: out = 8'h3c;
-      8'h6e: out = 8'h9f;
-      8'h6f: out = 8'ha8;
+        // Row 0x50
+        sbox_mem[8'h50] = 8'h53;
+        sbox_mem[8'h51] = 8'hd1;
+        sbox_mem[8'h52] = 8'h00;
+        sbox_mem[8'h53] = 8'hed;
+        sbox_mem[8'h54] = 8'h20;
+        sbox_mem[8'h55] = 8'hfc;
+        sbox_mem[8'h56] = 8'hb1;
+        sbox_mem[8'h57] = 8'h5b;
+        sbox_mem[8'h58] = 8'h6a;
+        sbox_mem[8'h59] = 8'hcb;
+        sbox_mem[8'h5a] = 8'hbe;
+        sbox_mem[8'h5b] = 8'h39;
+        sbox_mem[8'h5c] = 8'h4a;
+        sbox_mem[8'h5d] = 8'h4c;
+        sbox_mem[8'h5e] = 8'h58;
+        sbox_mem[8'h5f] = 8'hcf;
 
-      8'h70: out = 8'h51;
-      8'h71: out = 8'ha3;
-      8'h72: out = 8'h40;
-      8'h73: out = 8'h8f;
-      8'h74: out = 8'h92;
-      8'h75: out = 8'h9d;
-      8'h76: out = 8'h38;
-      8'h77: out = 8'hf5;
-      8'h78: out = 8'hbc;
-      8'h79: out = 8'hb6;
-      8'h7a: out = 8'hda;
-      8'h7b: out = 8'h21;
-      8'h7c: out = 8'h10;
-      8'h7d: out = 8'hff;
-      8'h7e: out = 8'hf3;
-      8'h7f: out = 8'hd2;
+        // Row 0x60
+        sbox_mem[8'h60] = 8'hd0;
+        sbox_mem[8'h61] = 8'hef;
+        sbox_mem[8'h62] = 8'haa;
+        sbox_mem[8'h63] = 8'hfb;
+        sbox_mem[8'h64] = 8'h43;
+        sbox_mem[8'h65] = 8'h4d;
+        sbox_mem[8'h66] = 8'h33;
+        sbox_mem[8'h67] = 8'h85;
+        sbox_mem[8'h68] = 8'h45;
+        sbox_mem[8'h69] = 8'hf9;
+        sbox_mem[8'h6a] = 8'h02;
+        sbox_mem[8'h6b] = 8'h7f;
+        sbox_mem[8'h6c] = 8'h50;
+        sbox_mem[8'h6d] = 8'h3c;
+        sbox_mem[8'h6e] = 8'h9f;
+        sbox_mem[8'h6f] = 8'ha8;
 
-      8'h80: out = 8'hcd;
-      8'h81: out = 8'h0c;
-      8'h82: out = 8'h13;
-      8'h83: out = 8'hec;
-      8'h84: out = 8'h5f;
-      8'h85: out = 8'h97;
-      8'h86: out = 8'h44;
-      8'h87: out = 8'h17;
-      8'h88: out = 8'hc4;
-      8'h89: out = 8'ha7;
-      8'h8a: out = 8'h7e;
-      8'h8b: out = 8'h3d;
-      8'h8c: out = 8'h64;
-      8'h8d: out = 8'h5d;
-      8'h8e: out = 8'h19;
-      8'h8f: out = 8'h73;
+        // Row 0x70
+        sbox_mem[8'h70] = 8'h51;
+        sbox_mem[8'h71] = 8'ha3;
+        sbox_mem[8'h72] = 8'h40;
+        sbox_mem[8'h73] = 8'h8f;
+        sbox_mem[8'h74] = 8'h92;
+        sbox_mem[8'h75] = 8'h9d;
+        sbox_mem[8'h76] = 8'h38;
+        sbox_mem[8'h77] = 8'hf5;
+        sbox_mem[8'h78] = 8'hbc;
+        sbox_mem[8'h79] = 8'hb6;
+        sbox_mem[8'h7a] = 8'hda;
+        sbox_mem[8'h7b] = 8'h21;
+        sbox_mem[8'h7c] = 8'h10;
+        sbox_mem[8'h7d] = 8'hff;
+        sbox_mem[8'h7e] = 8'hf3;
+        sbox_mem[8'h7f] = 8'hd2;
 
-      8'h90: out = 8'h60;
-      8'h91: out = 8'h81;
-      8'h92: out = 8'h4f;
-      8'h93: out = 8'hdc;
-      8'h94: out = 8'h22;
-      8'h95: out = 8'h2a;
-      8'h96: out = 8'h90;
-      8'h97: out = 8'h88;
-      8'h98: out = 8'h46;
-      8'h99: out = 8'hee;
-      8'h9a: out = 8'hb8;
-      8'h9b: out = 8'h14;
-      8'h9c: out = 8'hde;
-      8'h9d: out = 8'h5e;
-      8'h9e: out = 8'h0b;
-      8'h9f: out = 8'hdb;
+        // Row 0x80
+        sbox_mem[8'h80] = 8'hcd;
+        sbox_mem[8'h81] = 8'h0c;
+        sbox_mem[8'h82] = 8'h13;
+        sbox_mem[8'h83] = 8'hec;
+        sbox_mem[8'h84] = 8'h5f;
+        sbox_mem[8'h85] = 8'h97;
+        sbox_mem[8'h86] = 8'h44;
+        sbox_mem[8'h87] = 8'h17;
+        sbox_mem[8'h88] = 8'hc4;
+        sbox_mem[8'h89] = 8'ha7;
+        sbox_mem[8'h8a] = 8'h7e;
+        sbox_mem[8'h8b] = 8'h3d;
+        sbox_mem[8'h8c] = 8'h64;
+        sbox_mem[8'h8d] = 8'h5d;
+        sbox_mem[8'h8e] = 8'h19;
+        sbox_mem[8'h8f] = 8'h73;
 
-      8'ha0: out = 8'he0;
-      8'ha1: out = 8'h32;
-      8'ha2: out = 8'h3a;
-      8'ha3: out = 8'h0a;
-      8'ha4: out = 8'h49;
-      8'ha5: out = 8'h06;
-      8'ha6: out = 8'h24;
-      8'ha7: out = 8'h5c;
-      8'ha8: out = 8'hc2;
-      8'ha9: out = 8'hd3;
-      8'haa: out = 8'hac;
-      8'hab: out = 8'h62;
-      8'hac: out = 8'h91;
-      8'had: out = 8'h95;
-      8'hae: out = 8'he4;
-      8'haf: out = 8'h79;
+        // Row 0x90
+        sbox_mem[8'h90] = 8'h60;
+        sbox_mem[8'h91] = 8'h81;
+        sbox_mem[8'h92] = 8'h4f;
+        sbox_mem[8'h93] = 8'hdc;
+        sbox_mem[8'h94] = 8'h22;
+        sbox_mem[8'h95] = 8'h2a;
+        sbox_mem[8'h96] = 8'h90;
+        sbox_mem[8'h97] = 8'h88;
+        sbox_mem[8'h98] = 8'h46;
+        sbox_mem[8'h99] = 8'hee;
+        sbox_mem[8'h9a] = 8'hb8;
+        sbox_mem[8'h9b] = 8'h14;
+        sbox_mem[8'h9c] = 8'hde;
+        sbox_mem[8'h9d] = 8'h5e;
+        sbox_mem[8'h9e] = 8'h0b;
+        sbox_mem[8'h9f] = 8'hdb;
 
-      8'hb0: out = 8'he7;
-      8'hb1: out = 8'hc8;
-      8'hb2: out = 8'h37;
-      8'hb3: out = 8'h6d;
-      8'hb4: out = 8'h8d;
-      8'hb5: out = 8'hd5;
-      8'hb6: out = 8'h4e;
-      8'hb7: out = 8'ha9;
-      8'hb8: out = 8'h6c;
-      8'hb9: out = 8'h56;
-      8'hba: out = 8'hf4;
-      8'hbb: out = 8'hea;
-      8'hbc: out = 8'h65;
-      8'hbd: out = 8'h7a;
-      8'hbe: out = 8'hae;
-      8'hbf: out = 8'h08;
+        // Row 0xa0
+        sbox_mem[8'ha0] = 8'he0;
+        sbox_mem[8'ha1] = 8'h32;
+        sbox_mem[8'ha2] = 8'h3a;
+        sbox_mem[8'ha3] = 8'h0a;
+        sbox_mem[8'ha4] = 8'h49;
+        sbox_mem[8'ha5] = 8'h06;
+        sbox_mem[8'ha6] = 8'h24;
+        sbox_mem[8'ha7] = 8'h5c;
+        sbox_mem[8'ha8] = 8'hc2;
+        sbox_mem[8'ha9] = 8'hd3;
+        sbox_mem[8'haa] = 8'hac;
+        sbox_mem[8'hab] = 8'h62;
+        sbox_mem[8'hac] = 8'h91;
+        sbox_mem[8'had] = 8'h95;
+        sbox_mem[8'hae] = 8'he4;
+        sbox_mem[8'haf] = 8'h79;
 
-      8'hc0: out = 8'hba;
-      8'hc1: out = 8'h78;
-      8'hc2: out = 8'h25;
-      8'hc3: out = 8'h2e;
-      8'hc4: out = 8'h1c;
-      8'hc5: out = 8'ha6;
-      8'hc6: out = 8'hb4;
-      8'hc7: out = 8'hc6;
-      8'hc8: out = 8'he8;
-      8'hc9: out = 8'hdd;
-      8'hca: out = 8'h74;
-      8'hcb: out = 8'h1f;
-      8'hcc: out = 8'h4b;
-      8'hcd: out = 8'hbd;
-      8'hce: out = 8'h8b;
-      8'hcf: out = 8'h8a;
+        // Row 0xb0
+        sbox_mem[8'hb0] = 8'he7;
+        sbox_mem[8'hb1] = 8'hc8;
+        sbox_mem[8'hb2] = 8'h37;
+        sbox_mem[8'hb3] = 8'h6d;
+        sbox_mem[8'hb4] = 8'h8d;
+        sbox_mem[8'hb5] = 8'hd5;
+        sbox_mem[8'hb6] = 8'h4e;
+        sbox_mem[8'hb7] = 8'ha9;
+        sbox_mem[8'hb8] = 8'h6c;
+        sbox_mem[8'hb9] = 8'h56;
+        sbox_mem[8'hba] = 8'hf4;
+        sbox_mem[8'hbb] = 8'hea;
+        sbox_mem[8'hbc] = 8'h65;
+        sbox_mem[8'hbd] = 8'h7a;
+        sbox_mem[8'hbe] = 8'hae;
+        sbox_mem[8'hbf] = 8'h08;
 
-      8'hd0: out = 8'h70;
-      8'hd1: out = 8'h3e;
-      8'hd2: out = 8'hb5;
-      8'hd3: out = 8'h66;
-      8'hd4: out = 8'h48;
-      8'hd5: out = 8'h03;
-      8'hd6: out = 8'hf6;
-      8'hd7: out = 8'h0e;
-      8'hd8: out = 8'h61;
-      8'hd9: out = 8'h35;
-      8'hda: out = 8'h57;
-      8'hdb: out = 8'hb9;
-      8'hdc: out = 8'h86;
-      8'hdd: out = 8'hc1;
-      8'hde: out = 8'h1d;
-      8'hdf: out = 8'h9e;
+        // Row 0xc0
+        sbox_mem[8'hc0] = 8'hba;
+        sbox_mem[8'hc1] = 8'h78;
+        sbox_mem[8'hc2] = 8'h25;
+        sbox_mem[8'hc3] = 8'h2e;
+        sbox_mem[8'hc4] = 8'h1c;
+        sbox_mem[8'hc5] = 8'ha6;
+        sbox_mem[8'hc6] = 8'hb4;
+        sbox_mem[8'hc7] = 8'hc6;
+        sbox_mem[8'hc8] = 8'he8;
+        sbox_mem[8'hc9] = 8'hdd;
+        sbox_mem[8'hca] = 8'h74;
+        sbox_mem[8'hcb] = 8'h1f;
+        sbox_mem[8'hcc] = 8'h4b;
+        sbox_mem[8'hcd] = 8'hbd;
+        sbox_mem[8'hce] = 8'h8b;
+        sbox_mem[8'hcf] = 8'h8a;
 
-      8'he0: out = 8'he1;
-      8'he1: out = 8'hf8;
-      8'he2: out = 8'h98;
-      8'he3: out = 8'h11;
-      8'he4: out = 8'h69;
-      8'he5: out = 8'hd9;
-      8'he6: out = 8'h8e;
-      8'he7: out = 8'h94;
-      8'he8: out = 8'h9b;
-      8'he9: out = 8'h1e;
-      8'hea: out = 8'h87;
-      8'heb: out = 8'he9;
-      8'hec: out = 8'hce;
-      8'hed: out = 8'h55;
-      8'hee: out = 8'h28;
-      8'hef: out = 8'hdf;
+        // Row 0xd0
+        sbox_mem[8'hd0] = 8'h70;
+        sbox_mem[8'hd1] = 8'h3e;
+        sbox_mem[8'hd2] = 8'hb5;
+        sbox_mem[8'hd3] = 8'h66;
+        sbox_mem[8'hd4] = 8'h48;
+        sbox_mem[8'hd5] = 8'h03;
+        sbox_mem[8'hd6] = 8'hf6;
+        sbox_mem[8'hd7] = 8'h0e;
+        sbox_mem[8'hd8] = 8'h61;
+        sbox_mem[8'hd9] = 8'h35;
+        sbox_mem[8'hda] = 8'h57;
+        sbox_mem[8'hdb] = 8'hb9;
+        sbox_mem[8'hdc] = 8'h86;
+        sbox_mem[8'hdd] = 8'hc1;
+        sbox_mem[8'hde] = 8'h1d;
+        sbox_mem[8'hdf] = 8'h9e;
 
-      8'hf0: out = 8'h8c;
-      8'hf1: out = 8'ha1;
-      8'hf2: out = 8'h89;
-      8'hf3: out = 8'h0d;
-      8'hf4: out = 8'hbf;
-      8'hf5: out = 8'he6;
-      8'hf6: out = 8'h42;
-      8'hf7: out = 8'h68;
-      8'hf8: out = 8'h41;
-      8'hf9: out = 8'h99;
-      8'hfa: out = 8'h2d;
-      8'hfb: out = 8'h0f;
-      8'hfc: out = 8'hb0;
-      8'hfd: out = 8'h54;
-      8'hfe: out = 8'hbb;
-      8'hff: out = 8'h16;
-    endcase
-  end
+        // Row 0xe0
+        sbox_mem[8'he0] = 8'he1;
+        sbox_mem[8'he1] = 8'hf8;
+        sbox_mem[8'he2] = 8'h98;
+        sbox_mem[8'he3] = 8'h11;
+        sbox_mem[8'he4] = 8'h69;
+        sbox_mem[8'he5] = 8'hd9;
+        sbox_mem[8'he6] = 8'h8e;
+        sbox_mem[8'he7] = 8'h94;
+        sbox_mem[8'he8] = 8'h9b;
+        sbox_mem[8'he9] = 8'h1e;
+        sbox_mem[8'hea] = 8'h87;
+        sbox_mem[8'heb] = 8'he9;
+        sbox_mem[8'hec] = 8'hce;
+        sbox_mem[8'hed] = 8'h55;
+        sbox_mem[8'hee] = 8'h28;
+        sbox_mem[8'hef] = 8'hdf;
+
+        // Row 0xf0
+        sbox_mem[8'hf0] = 8'h8c;
+        sbox_mem[8'hf1] = 8'ha1;
+        sbox_mem[8'hf2] = 8'h89;
+        sbox_mem[8'hf3] = 8'h0d;
+        sbox_mem[8'hf4] = 8'hbf;
+        sbox_mem[8'hf5] = 8'he6;
+        sbox_mem[8'hf6] = 8'h42;
+        sbox_mem[8'hf7] = 8'h68;
+        sbox_mem[8'hf8] = 8'h41;
+        sbox_mem[8'hf9] = 8'h99;
+        sbox_mem[8'hfa] = 8'h2d;
+        sbox_mem[8'hfb] = 8'h0f;
+        sbox_mem[8'hfc] = 8'hb0;
+        sbox_mem[8'hfd] = 8'h54;
+        sbox_mem[8'hfe] = 8'hbb;
+        sbox_mem[8'hff] = 8'h16;
+    end
+
+    always @(posedge clk) begin
+        if (!reset_n) begin
+            addr        <= 8'h00;
+            valid_delay <= 1'b0;
+        end else if (start) begin
+            addr        <= in;
+            valid_delay <= 1'b1;
+        end else begin
+            valid_delay <= 1'b0;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!reset_n) begin
+            out   <= 8'h00;
+            valid <= 1'b0;
+        end else begin
+            out   <= sbox_mem[addr];
+            valid <= valid_delay;
+        end
+    end
 
 endmodule
