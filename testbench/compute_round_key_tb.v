@@ -37,11 +37,6 @@ module compute_round_key_tb ();
     always #5 clk = ~clk;
 
     initial begin
-        $dumpfile("compute_round_key_tb.vcd");
-        $dumpvars(0, compute_round_key_tb);
-    end
-
-    initial begin
         clk       = 0;
         reset_n   = 0;
         start     = 0;

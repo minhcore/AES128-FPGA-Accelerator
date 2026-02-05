@@ -13,17 +13,17 @@ module g_function (
     wire [31:0] sub_out;
     wire sub_word_valid;
 
-    rcon u0 (
+    rcon rcon_module (
         .round_num(round_num),
         .out      (rcon)
     );
 
-    rot_word u1 (
+    rot_word rot_word_module (
         .in (word_in),
         .out(out_rot_in_sub)
     );
 
-    sub_word u2 (
+    sub_word sub_word_module (
         .clk    (clk),
         .reset_n(reset_n),
         .start  (start),

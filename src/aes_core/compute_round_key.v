@@ -23,7 +23,7 @@ module compute_round_key (
     assign w2_prev = old_key[63:32];
     assign w3_prev = old_key[31:0];
 
-    g_function u0 (
+    g_function g_function_module (
         .clk      (clk),
         .reset_n  (reset_n),
         .start    (start),

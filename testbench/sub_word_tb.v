@@ -41,4 +41,9 @@ module sub_word_tb ();
         $finish;
     end
 
+    initial begin
+        $dumpfile("sub_word_tb.vcd");
+        $dumpvars(0, sub_word_tb);
+    end
+
 endmodule
