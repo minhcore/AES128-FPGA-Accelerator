@@ -13,7 +13,6 @@ module sbox (
     reg valid_delay;
 
     initial begin
-        // Row 0x00
         sbox_mem[8'h00] = 8'h63;
         sbox_mem[8'h01] = 8'h7c;
         sbox_mem[8'h02] = 8'h77;
@@ -31,7 +30,6 @@ module sbox (
         sbox_mem[8'h0e] = 8'hab;
         sbox_mem[8'h0f] = 8'h76;
 
-        // Row 0x10
         sbox_mem[8'h10] = 8'hca;
         sbox_mem[8'h11] = 8'h82;
         sbox_mem[8'h12] = 8'hc9;
@@ -49,7 +47,6 @@ module sbox (
         sbox_mem[8'h1e] = 8'h72;
         sbox_mem[8'h1f] = 8'hc0;
 
-        // Row 0x20
         sbox_mem[8'h20] = 8'hb7;
         sbox_mem[8'h21] = 8'hfd;
         sbox_mem[8'h22] = 8'h93;
@@ -67,7 +64,6 @@ module sbox (
         sbox_mem[8'h2e] = 8'h31;
         sbox_mem[8'h2f] = 8'h15;
 
-        // Row 0x30
         sbox_mem[8'h30] = 8'h04;
         sbox_mem[8'h31] = 8'hc7;
         sbox_mem[8'h32] = 8'h23;
@@ -85,7 +81,6 @@ module sbox (
         sbox_mem[8'h3e] = 8'hb2;
         sbox_mem[8'h3f] = 8'h75;
 
-        // Row 0x40
         sbox_mem[8'h40] = 8'h09;
         sbox_mem[8'h41] = 8'h83;
         sbox_mem[8'h42] = 8'h2c;
@@ -103,7 +98,6 @@ module sbox (
         sbox_mem[8'h4e] = 8'h2f;
         sbox_mem[8'h4f] = 8'h84;
 
-        // Row 0x50
         sbox_mem[8'h50] = 8'h53;
         sbox_mem[8'h51] = 8'hd1;
         sbox_mem[8'h52] = 8'h00;
@@ -121,7 +115,6 @@ module sbox (
         sbox_mem[8'h5e] = 8'h58;
         sbox_mem[8'h5f] = 8'hcf;
 
-        // Row 0x60
         sbox_mem[8'h60] = 8'hd0;
         sbox_mem[8'h61] = 8'hef;
         sbox_mem[8'h62] = 8'haa;
@@ -139,7 +132,6 @@ module sbox (
         sbox_mem[8'h6e] = 8'h9f;
         sbox_mem[8'h6f] = 8'ha8;
 
-        // Row 0x70
         sbox_mem[8'h70] = 8'h51;
         sbox_mem[8'h71] = 8'ha3;
         sbox_mem[8'h72] = 8'h40;
@@ -157,7 +149,6 @@ module sbox (
         sbox_mem[8'h7e] = 8'hf3;
         sbox_mem[8'h7f] = 8'hd2;
 
-        // Row 0x80
         sbox_mem[8'h80] = 8'hcd;
         sbox_mem[8'h81] = 8'h0c;
         sbox_mem[8'h82] = 8'h13;
@@ -175,7 +166,6 @@ module sbox (
         sbox_mem[8'h8e] = 8'h19;
         sbox_mem[8'h8f] = 8'h73;
 
-        // Row 0x90
         sbox_mem[8'h90] = 8'h60;
         sbox_mem[8'h91] = 8'h81;
         sbox_mem[8'h92] = 8'h4f;
@@ -193,7 +183,6 @@ module sbox (
         sbox_mem[8'h9e] = 8'h0b;
         sbox_mem[8'h9f] = 8'hdb;
 
-        // Row 0xa0
         sbox_mem[8'ha0] = 8'he0;
         sbox_mem[8'ha1] = 8'h32;
         sbox_mem[8'ha2] = 8'h3a;
@@ -211,7 +200,6 @@ module sbox (
         sbox_mem[8'hae] = 8'he4;
         sbox_mem[8'haf] = 8'h79;
 
-        // Row 0xb0
         sbox_mem[8'hb0] = 8'he7;
         sbox_mem[8'hb1] = 8'hc8;
         sbox_mem[8'hb2] = 8'h37;
@@ -229,7 +217,6 @@ module sbox (
         sbox_mem[8'hbe] = 8'hae;
         sbox_mem[8'hbf] = 8'h08;
 
-        // Row 0xc0
         sbox_mem[8'hc0] = 8'hba;
         sbox_mem[8'hc1] = 8'h78;
         sbox_mem[8'hc2] = 8'h25;
@@ -247,7 +234,6 @@ module sbox (
         sbox_mem[8'hce] = 8'h8b;
         sbox_mem[8'hcf] = 8'h8a;
 
-        // Row 0xd0
         sbox_mem[8'hd0] = 8'h70;
         sbox_mem[8'hd1] = 8'h3e;
         sbox_mem[8'hd2] = 8'hb5;
@@ -265,7 +251,6 @@ module sbox (
         sbox_mem[8'hde] = 8'h1d;
         sbox_mem[8'hdf] = 8'h9e;
 
-        // Row 0xe0
         sbox_mem[8'he0] = 8'he1;
         sbox_mem[8'he1] = 8'hf8;
         sbox_mem[8'he2] = 8'h98;
@@ -283,7 +268,6 @@ module sbox (
         sbox_mem[8'hee] = 8'h28;
         sbox_mem[8'hef] = 8'hdf;
 
-        // Row 0xf0
         sbox_mem[8'hf0] = 8'h8c;
         sbox_mem[8'hf1] = 8'ha1;
         sbox_mem[8'hf2] = 8'h89;
