@@ -23,6 +23,7 @@ SRCS = \
 	src/aes_core/g_function.v \
 	src/aes_core/compute_round_key.v \
 	src/aes_core/aes_key_expand.v \
+	src/aes_core/sub_byte.v \
 	src/top/top_uart_echo.v \
 	src/top/top_packaging.v \
 	tools/pulse_stretcher.v \
