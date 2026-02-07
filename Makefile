@@ -24,6 +24,12 @@ SRCS = \
 	src/aes_core/compute_round_key.v \
 	src/aes_core/aes_key_expand.v \
 	src/aes_core/sub_byte.v \
+	src/aes_core/shift_rows.v \
+	src/aes_core/add_round_key.v \
+	src/aes_core/gf_mult_by_2.v \
+	src/aes_core/gf_mult_by_3.v \
+	src/aes_core/mix_single_column.v \
+	src/aes_core/mix_columns.v \
 	src/top/top_uart_echo.v \
 	src/top/top_packaging.v \
 	tools/pulse_stretcher.v \
