@@ -88,9 +88,5 @@ lint:
 	$(IVERILOG) -Wall -tnull $(SRCS)
 
 wave:
-	wave:
-	@if exist $(TB).gtkw ( \
-		gtkwave $(SIM_DIR)/$(TB).vcd $(TB).gtkw 2>NUL \
-	) else ( \
-		gtkwave $(SIM_DIR)/$(TB).vcd 2>NUL \
-	)
+	-gtkwave $(SIM_DIR)/$(TB).vcd $(TB).gtkw 2>NUL
+	-gtkwave $(SIM_DIR)/$(TB).vcd 2>NUL
