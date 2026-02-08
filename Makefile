@@ -88,5 +88,4 @@ lint:
 	$(IVERILOG) -Wall -tnull $(SRCS)
 
 wave:
-	-gtkwave $(SIM_DIR)/$(TB).vcd $(TB).gtkw 2>NUL
-	-gtkwave $(SIM_DIR)/$(TB).vcd 2>NUL
+	gtkwave $(SIM_DIR)/$(TB).vcd $(wildcard $(TB).gtkw) 2>NUL
