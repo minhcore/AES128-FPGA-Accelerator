@@ -31,6 +31,7 @@ SRCS = \
 	src/aes_core/mix_single_column.v \
 	src/aes_core/mix_columns.v \
 	src/aes_core/aes_control.v \
+	src/width_converter/width_converter_128to8.v \
 	src/top/top_uart_echo.v \
 	src/top/top_packaging.v \
 	tools/pulse_stretcher.v \
