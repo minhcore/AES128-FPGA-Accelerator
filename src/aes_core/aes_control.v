@@ -1,15 +1,14 @@
 module aes_control (
-    input              clk,
-    input              reset_n,
-    input      [127:0] data_in,
-    input              data_valid,
-    input              key_valid,
-    input              error_flag,
-    output     [127:0] cipher_text,
-    output             cipher_valid,
-    output             busy,
-    output reg         valid,
-    output             error
+    input          clk,
+    input          reset_n,
+    input  [127:0] data_in,
+    input          data_valid,
+    input          key_valid,
+    input          error_flag,
+    output [127:0] cipher_text,
+    output         cipher_valid,
+    output         busy,
+    output         error
 );
 
     localparam IDLE = 0;
@@ -38,6 +37,7 @@ module aes_control (
     reg [127:0] round_key;
     reg key_load;
     reg next_key;
+    reg valid;
 
     wire [127:0] sub_byte_out;
     wire sub_byte_valid;
@@ -81,7 +81,11 @@ module aes_control (
     assign round_num         = counter + 1;
     assign error             = error_process;
     assign cipher_text       = buffer;
+    // Key expansion only reads input when kld=1 or next_key=1
+    // so this assignment is safe even when data_in = plaintext
     assign aes_key_expand_in = (state != ALREADY_KEY) ? data_in : key;
+    assign cipher_valid      = valid;
+    assign busy              = (state != IDLE && state != DONE);
 
     always @(posedge clk) begin
         if (!reset_n) begin

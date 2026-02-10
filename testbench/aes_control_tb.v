@@ -12,7 +12,6 @@ module aes_control_tb;
     wire [127:0] cipher_text;
     wire cipher_valid;
     wire busy;
-    wire valid;
     wire error;
 
     reg [127:0] expected_cipher;
@@ -29,7 +28,6 @@ module aes_control_tb;
         .cipher_text (cipher_text),
         .cipher_valid(cipher_valid),
         .busy        (busy),
-        .valid       (valid),
         .error       (error)
     );
 
@@ -73,7 +71,7 @@ module aes_control_tb;
         data_valid      = 1;
         #10;
         data_valid = 0;
-        wait (valid);
+        wait (cipher_valid);
         if (cipher_text == expected_cipher) pass_count = pass_count + 1;
         else $display("Test 1 FAILED");
         #50;
@@ -85,7 +83,7 @@ module aes_control_tb;
         data_valid      = 1;
         #10;
         data_valid = 0;
-        wait (valid);
+        wait (cipher_valid);
         if (cipher_text == expected_cipher) pass_count = pass_count + 1;
         else $display("Test 2 FAILED");
         #50;
@@ -97,7 +95,7 @@ module aes_control_tb;
         data_valid      = 1;
         #10;
         data_valid = 0;
-        wait (valid);
+        wait (cipher_valid);
         if (cipher_text == expected_cipher) pass_count = pass_count + 1;
         else $display("Test 3 FAILED");
         #50;
@@ -109,7 +107,7 @@ module aes_control_tb;
         data_valid      = 1;
         #10;
         data_valid = 0;
-        wait (valid);
+        wait (cipher_valid);
         if (cipher_text == expected_cipher) pass_count = pass_count + 1;
         else $display("Test 4 FAILED");
         #50;

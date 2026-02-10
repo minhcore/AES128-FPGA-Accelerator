@@ -31,8 +31,9 @@ SRCS = \
 	src/aes_core/mix_single_column.v \
 	src/aes_core/mix_columns.v \
 	src/aes_core/aes_control.v \
+	src/width_converter/width_converter_128to8.v \
+	src/sending/sending.v \
 	src/top/top_uart_echo.v \
-	src/top/top_packaging.v \
 	tools/pulse_stretcher.v \
 	
 
@@ -88,4 +89,4 @@ lint:
 	$(IVERILOG) -Wall -tnull $(SRCS)
 
 wave:
-	gtkwave $(SIM_DIR)/$(TB).vcd $(wildcard $(TB).gtkw) 2>NUL
+	gtkwave $(SIM_DIR)/$(TB).vcd $(wildcard $(SIM_DIR)/$(TB).gtkw) 2>NUL
