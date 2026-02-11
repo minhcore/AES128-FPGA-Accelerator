@@ -7,13 +7,13 @@ module sbox (
     output reg       valid
 );
 
-    (* ram_style = "block" *) (* syn_ramstyle = "block_ram" *) (* keep *)
+    (* syn_ramstyle = "block_ram" *)
     reg [7:0] sbox_mem[0:255];
     reg [7:0] addr;
     reg valid_delay;
 
     initial begin
-        $readmemh("E:/AES128_FPGA_Accelerator/src/aes_core/sbox.mem", sbox_mem);
+        $readmemh("src/aes_core/sbox.mem", sbox_mem);
     end
 
     always @(posedge clk) begin
