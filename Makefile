@@ -8,8 +8,8 @@ SIM_FILES_DIR = testbench
 CONSTRAINTS = \
 	constraints/pins.cst
 
-FAMILY = GW1N-9C
 DEVICE = GW1NR-LV9QN88PC6/I5
+FAMILY = GW1N-9C
 
 SRCS = \
 	src/uart/uart_rx.v \
@@ -39,7 +39,7 @@ SRCS = \
 	
 
 YOSYS = yosys
-NEXTPNR = nextpnr-gowin
+NEXTPNR = nextpnr-himbaechel
 GOWIN_PACK = gowin_pack
 IVERILOG = iverilog
 VVP = vvp
@@ -58,7 +58,9 @@ $(BUILD_DIR)/$(PROJECT).json: $(SRCS)
 
 pnr: $(BUILD_DIR)/$(PROJECT).pnr
 $(BUILD_DIR)/$(PROJECT).pnr: $(BUILD_DIR)/$(PROJECT).json
-	$(NEXTPNR) --json $< --write $@ --device $(DEVICE) --family $(FAMILY) --cst $(CONSTRAINTS)
+	$(NEXTPNR) --json $< --write $@ --device $(DEVICE) \
+	--vopt family=$(FAMILY) \
+	--vopt cst=$(CONSTRAINTS)
 
 
 pack: $(BUILD_DIR)/$(PROJECT).fs
