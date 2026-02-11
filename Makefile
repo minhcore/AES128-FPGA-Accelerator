@@ -1,5 +1,5 @@
 PROJECT = project
-TB ?= uart_rx_tb
+TB ?= top_tb
 TOP ?= top
 
 BUILD_DIR = build
@@ -92,4 +92,4 @@ lint:
 	$(IVERILOG) -Wall -tnull $(SRCS)
 
 wave:
-	gtkwave $(SIM_DIR)/$(TB).vcd $(wildcard $(SIM_DIR)/$(TB).gtkw) 2>NUL
+	surfer $(SIM_DIR)/$(TB).vcd
