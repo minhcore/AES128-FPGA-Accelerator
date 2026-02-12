@@ -1,4 +1,8 @@
-IO_LOC  "led" 10;
+IO_LOC  "debug_tx" 26;
+IO_PORT "debug_tx" IO_TYPE=LVCMOS33;
+
+IO_LOC  "debug_rx" 25;
+IO_PORT "debug_rx" IO_TYPE=LVCMOS33;
 
 IO_LOC  "uart_tx" 17;
 IO_PORT "uart_tx" IO_TYPE=LVCMOS33;

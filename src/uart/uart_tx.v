@@ -10,30 +10,30 @@ module uart_tx #(
     output reg       tx_done
 );
 
-    localparam HALF_DELAY_WAIT = (DELAY_FRAMES / 2);
-
-    reg [2:0] tx_state = 0;
-    reg [7:0] tx_counter = 0;
-    reg [7:0] data_out = 0;
-    reg tx_pin_register = 1;
-    reg [2:0] tx_bit_number = 0;
-
-    assign tx_out  = tx_pin_register;
-    assign tx_busy = (tx_state != TX_STATE_IDLE);
-
     localparam TX_STATE_IDLE = 0;
     localparam TX_STATE_START_BIT = 1;
     localparam TX_STATE_WRITE = 2;
     localparam TX_STATE_STOP = 3;
 
+    reg [2:0] tx_state;
+    reg [7:0] tx_counter;
+    reg [7:0] data_out;
+    reg tx_pin_register;
+    reg [2:0] tx_bit_number;
+
+    assign tx_out  = tx_pin_register;
+    assign tx_busy = (tx_state != TX_STATE_IDLE);
+
     always @(posedge clk) begin
         if (!reset_n) begin
-            tx_state      <= TX_STATE_IDLE;
-            tx_counter    <= 0;
-            tx_bit_number <= 0;
-            tx_done       <= 0;
+            tx_state        <= TX_STATE_IDLE;
+            tx_counter      <= 0;
+            tx_bit_number   <= 0;
+            tx_done         <= 0;
+            tx_pin_register <= 1;
         end else begin
-            tx_done <= 0;
+            tx_pin_register <= 1;
+            tx_done         <= 0;
             case (tx_state)
                 TX_STATE_IDLE: begin
                     if (tx_start == 1) begin
@@ -74,7 +74,7 @@ module uart_tx #(
 
                 TX_STATE_STOP: begin
                     tx_pin_register <= 1;
-                    if (tx_counter == HALF_DELAY_WAIT - 1) begin
+                    if (tx_counter == DELAY_FRAMES - 1) begin
                         tx_state <= TX_STATE_IDLE;
                         tx_done  <= 1;
                     end else begin

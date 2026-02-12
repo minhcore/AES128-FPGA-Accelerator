@@ -3,7 +3,7 @@ module packaging (
     input              reset_n,
     input      [  7:0] fifo_data_in,
     input              fifo_empty,
-    input              output_busy,
+    input              output_can_accept,
     output reg         fifo_read_enable,
     output reg [127:0] data_out,
     output reg         data_valid,
@@ -51,7 +51,7 @@ module packaging (
                 IDLE: begin
                     byte_count       <= 0;
                     check_sum_result <= 0;
-                    if (!fifo_empty && !output_busy) begin
+                    if (!fifo_empty && output_can_accept) begin
                         fifo_read_enable <= 1;
                         state            <= WAIT_HEADER;
                     end

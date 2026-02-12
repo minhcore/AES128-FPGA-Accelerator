@@ -26,9 +26,10 @@ module sending (
 
     localparam IDLE = 0;
     localparam READ_FIFO = 1;
-    localparam LATCH_DATA = 2;
-    localparam START_TX = 3;
-    localparam WAIT_TX = 4;
+    localparam WAIT_FIFO = 2;
+    localparam LATCH_DATA = 3;
+    localparam START_TX = 4;
+    localparam WAIT_TX = 5;
 
     width_converter_128to8 width_converter (
         .clk         (clk),
@@ -84,7 +85,11 @@ module sending (
 
                 READ_FIFO: begin
                     fifo_read_enable <= 1'b1;
-                    state            <= LATCH_DATA;
+                    state            <= WAIT_FIFO;
+                end
+
+                WAIT_FIFO: begin
+                    state <= LATCH_DATA;
                 end
 
                 LATCH_DATA: begin

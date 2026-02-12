@@ -1,175 +1,140 @@
 #!/usr/bin/env python3
 """
-Script giao tiếp UART với chip AES
-Gửi key từ key.txt và data từ data.txt, nhận cipher từ chip và lưu vào cipher.txt
+Script test UART đơn giản - Gửi RAW và nhận RAW
 """
 
 import serial
 import time
-import sys
 
-# Cấu hình UART
-SERIAL_PORT = 'COM5'  # Thay đổi theo cổng COM của bạn (Windows: COM3, Linux: /dev/ttyUSB0)
-BAUD_RATE = 115200             # Thay đổi theo baudrate của chip
-TIMEOUT = 2                    # Timeout 2 giây
+SERIAL_PORT = 'COM5'
+BAUD_RATE = 115200
 
-# Định nghĩa header và footer theo Verilog
-KEY_HEADER = 0xBB
-DATA_HEADER = 0xAA
-FOOTER = 0x55
+# Gói tin KEY (19 bytes)
+KEY_PACKET = bytes([
+    0xBB,  # Header
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,  # "01234567"
+    0x38, 0x39, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46,  # "89ABCDEF"
+    0xBD,  # Checksum
+    0x55   # Footer
+])
 
-def calculate_checksum(header, data_bytes):
-    """Tính checksum = XOR của header và tất cả data bytes"""
-    checksum = header
-    for byte in data_bytes:
-        checksum ^= byte
-    return checksum
-
-def create_packet(header, data_bytes):
-    """Tạo gói tin với format: Header + Data(16 bytes) + Checksum + Footer"""
-    if len(data_bytes) != 16:
-        raise ValueError(f"Data phải đúng 16 bytes, nhận được {len(data_bytes)} bytes")
-    
-    checksum = calculate_checksum(header, data_bytes)
-    packet = bytes([header]) + data_bytes + bytes([checksum, FOOTER])
-    return packet
-
-def send_packet(ser, packet, packet_type="DATA"):
-    """Gửi gói tin qua UART"""
-    print(f"\n[{packet_type}] Gửi gói tin ({len(packet)} bytes):")
-    print(f"  Header:   0x{packet[0]:02X}")
-    print(f"  Data:     {' '.join(f'{b:02X}' for b in packet[1:17])}")
-    print(f"  Checksum: 0x{packet[17]:02X}")
-    print(f"  Footer:   0x{packet[18]:02X}")
-    
-    ser.write(packet)
-    ser.flush()
-    print(f"[{packet_type}] Đã gửi thành công!")
-
-def receive_response(ser, expected_bytes=19, timeout=2):
-    """Nhận phản hồi từ chip"""
-    print(f"\n[RX] Đợi nhận {expected_bytes} bytes...")
-    
-    start_time = time.time()
-    received_data = b''
-    
-    while len(received_data) < expected_bytes:
-        if time.time() - start_time > timeout:
-            print(f"[RX] Timeout! Chỉ nhận được {len(received_data)}/{expected_bytes} bytes")
-            break
-        
-        if ser.in_waiting > 0:
-            byte = ser.read(1)
-            received_data += byte
-            # print(f"  Nhận byte: 0x{byte[0]:02X}")
-    
-    if len(received_data) == expected_bytes:
-        print(f"[RX] Nhận đủ {len(received_data)} bytes:")
-        print(f"  Header:   0x{received_data[0]:02X}")
-        print(f"  Data:     {' '.join(f'{b:02X}' for b in received_data[1:17])}")
-        print(f"  Checksum: 0x{received_data[17]:02X}")
-        print(f"  Footer:   0x{received_data[18]:02X}")
-        
-        # Kiểm tra checksum
-        expected_checksum = calculate_checksum(received_data[0], received_data[1:17])
-        if received_data[17] == expected_checksum and received_data[18] == FOOTER:
-            print("[RX] ✓ Checksum và Footer hợp lệ!")
-            return received_data[1:17]  # Trả về 16 bytes data
-        else:
-            print("[RX] ✗ Lỗi checksum hoặc footer!")
-            return None
-    
-    return None
+# Gói tin DATA (19 bytes)
+DATA_PACKET = bytes([
+    0xAA,  # Header
+    0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x57, 0x6F,  # "Hello Wo"
+    0x72, 0x6C, 0x64, 0x2C, 0x20, 0x41, 0x45, 0x53,  # "rld, AES"
+    0xD1,  # Checksum
+    0x55   # Footer
+])
 
 def main():
     print("=" * 60)
-    print("  UART AES Communication Script")
+    print("  UART RAW TEST - Manual Send/Receive")
     print("=" * 60)
     
-    # Đọc key từ file key.txt
     try:
-        with open('key.txt', 'r') as f:
-            key_str = f.read().strip()
-            if len(key_str) != 16:
-                print(f"[ERROR] Key phải đúng 16 ký tự, nhận được {len(key_str)} ký tự")
-                sys.exit(1)
-            key_bytes = key_str.encode('ascii')
-            print(f"\n[KEY] Đọc key từ key.txt: '{key_str}'")
-    except FileNotFoundError:
-        print("[ERROR] Không tìm thấy file key.txt!")
-        sys.exit(1)
-    
-    # Đọc data từ file data.txt
-    try:
-        with open('data.txt', 'r') as f:
-            data_str = f.read().strip()
-            if len(data_str) != 16:
-                print(f"[ERROR] Data phải đúng 16 ký tự, nhận được {len(data_str)} ký tự")
-                sys.exit(1)
-            data_bytes = data_str.encode('ascii')
-            print(f"[DATA] Đọc data từ data.txt: '{data_str}'")
-    except FileNotFoundError:
-        print("[ERROR] Không tìm thấy file data.txt!")
-        sys.exit(1)
-    
-    # Kết nối UART
-    try:
-        print(f"\n[UART] Kết nối tới {SERIAL_PORT} @ {BAUD_RATE} baud...")
-        ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=TIMEOUT)
-        time.sleep(0.5)  # Đợi port ổn định
-        print("[UART] Kết nối thành công!")
+        print(f"\n[UART] Mở {SERIAL_PORT} @ {BAUD_RATE}...")
+        ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=5)
+        time.sleep(0.5)
+        print("[UART] ✓ Đã mở!")
         
         # Xóa buffer
         ser.reset_input_buffer()
         ser.reset_output_buffer()
         
-        # Bước 1: Gửi KEY
+        # ==========================================
+        # BƯỚC 1: GỬI KEY
+        # ==========================================
         print("\n" + "=" * 60)
-        print("BƯỚC 1: GỬI KEY")
+        print("BƯỚC 1: GỬI KEY PACKET")
         print("=" * 60)
-        key_packet = create_packet(KEY_HEADER, key_bytes)
-        send_packet(ser, key_packet, "KEY")
-        time.sleep(0.1)  # Đợi chip xử lý
+        print(f"Gửi: {' '.join(f'{b:02X}' for b in KEY_PACKET)}")
         
-        # Bước 2: Gửi DATA
+        ser.write(KEY_PACKET)
+        ser.flush()
+        print("✓ Đã gửi KEY!")
+        
+        # Đợi xử lý
+        time.sleep(0.3)
+        
+        # Kiểm tra có data phản hồi không
+        if ser.in_waiting > 0:
+            junk = ser.read(ser.in_waiting)
+            print(f"⚠ Nhận được {len(junk)} bytes sau KEY: {' '.join(f'{b:02X}' for b in junk)}")
+        
+        ser.reset_input_buffer()
+        
+        # ==========================================
+        # BƯỚC 2: GỬI DATA
+        # ==========================================
         print("\n" + "=" * 60)
-        print("BƯỚC 2: GỬI DATA")
+        print("BƯỚC 2: GỬI DATA PACKET")
         print("=" * 60)
-        data_packet = create_packet(DATA_HEADER, data_bytes)
-        send_packet(ser, data_packet, "DATA")
+        print(f"Gửi: {' '.join(f'{b:02X}' for b in DATA_PACKET)}")
         
-        # Bước 3: Nhận CIPHER
+        ser.write(DATA_PACKET)
+        ser.flush()
+        print("✓ Đã gửi DATA!")
+        
+        # ==========================================
+        # BƯỚC 3: POLLING LIÊN TỤC
+        # ==========================================
         print("\n" + "=" * 60)
-        print("BƯỚC 3: NHẬN CIPHER")
+        print("BƯỚC 3: POLLING BUFFER")
         print("=" * 60)
-        cipher_bytes = receive_response(ser, expected_bytes=19, timeout=5)
+        print("Đợi 5 giây và in buffer mỗi 100ms...")
+        print("(Nhấn Ctrl+C để dừng sớm)")
         
-        if cipher_bytes:
-            # Lưu vào file cipher.txt
-            cipher_hex = ''.join(f'{b:02X}' for b in cipher_bytes)
-            with open('cipher.txt', 'w') as f:
-                f.write(cipher_hex)
-            print(f"\n[CIPHER] Đã lưu vào cipher.txt:")
-            print(f"  Hex: {cipher_hex}")
-            print(f"  ASCII: {cipher_bytes.hex()}")
-            print("\n" + "=" * 60)
-            print("✓ HOÀN THÀNH!")
-            print("=" * 60)
-        else:
-            print("\n[ERROR] Không nhận được cipher từ chip!")
-            print("=" * 60)
+        try:
+            for i in range(50):  # 50 x 100ms = 5 giây
+                time.sleep(0.1)
+                
+                if ser.in_waiting > 0:
+                    # Có data!
+                    print(f"\n[+{i*100:4d}ms] ✓ PHÁT HIỆN {ser.in_waiting} BYTES!")
+                    
+                    # Đợi thêm chút để nhận hết
+                    time.sleep(0.2)
+                    
+                    # Đọc tất cả
+                    data = ser.read(ser.in_waiting)
+                    print(f"\nNhận được {len(data)} bytes:")
+                    print(f"HEX: {' '.join(f'{b:02X}' for b in data)}")
+                    
+                    # Nếu đủ 16 bytes - đó là cipher!
+                    if len(data) >= 16:
+                        print(f"\n✓✓✓ CIPHER (16 bytes đầu): {' '.join(f'{data[i]:02X}' for i in range(16))}")
+                        
+                        # Lưu file
+                        with open('cipher_received.txt', 'w') as f:
+                            f.write(''.join(f'{data[i]:02X}' for i in range(min(16, len(data)))))
+                        print("✓ Đã lưu vào cipher_received.txt")
+                    
+                    break
+                else:
+                    # In dấu chấm mỗi 500ms
+                    if i % 5 == 0:
+                        print(f"[+{i*100:4d}ms] Buffer: 0", end="\r")
+            else:
+                print("\n\n✗ Timeout 5 giây - KHÔNG nhận được data!")
         
+        except KeyboardInterrupt:
+            print("\n\n[INFO] Dừng bởi người dùng")
+            if ser.in_waiting > 0:
+                data = ser.read(ser.in_waiting)
+                print(f"Buffer còn {len(data)} bytes: {' '.join(f'{b:02X}' for b in data)}")
+        
+        print("\n" + "=" * 60)
         ser.close()
+        print("Đã đóng cổng COM")
         
     except serial.SerialException as e:
-        print(f"[ERROR] Lỗi kết nối UART: {e}")
-        print(f"  Kiểm tra lại cổng COM và driver!")
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\n\n[INFO] Đã hủy bởi người dùng")
-        if 'ser' in locals() and ser.is_open:
-            ser.close()
-        sys.exit(0)
+        print(f"\n[ERROR] Lỗi UART: {e}")
+        
+    except Exception as e:
+        print(f"\n[ERROR] {e}")
+        import traceback
+        traceback.print_exc()
 
 if __name__ == "__main__":
     main()

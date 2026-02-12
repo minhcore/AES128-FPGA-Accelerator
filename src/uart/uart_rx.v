@@ -85,6 +85,11 @@ module uart_rx #(
 
     // state logic
     always @(posedge clk) begin
+        if (!reset_n) begin
+            rx_counter    <= 8'd0;
+            rx_bit_number <= 3'd0;
+            rx_data       <= 8'd0;
+        end
         case (rx_current_state)
             RX_STATE_IDLE: begin
                 rx_counter    <= 0;

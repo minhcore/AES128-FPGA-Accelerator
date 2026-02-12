@@ -3,8 +3,13 @@ module top (
     input clk,
     input reset_n,
 
-    output uart_tx
+    output uart_tx,
+    output debug_rx,
+    output debug_tx
 );
+
+    assign debug_rx = uart_rx;
+    assign debug_tx = uart_tx;
 
     wire [7:0] rx_data;
     wire rx_done;
@@ -21,7 +26,7 @@ module top (
     wire aes_busy;
     wire aes_error;
     wire cipher_valid;
-    wire output_busy;
+    wire output_can_accept;
 
     uart_rx rx (
         .clk    (clk),
@@ -44,16 +49,16 @@ module top (
     );
 
     packaging packaging (
-        .clk             (clk),
-        .reset_n         (reset_n),
-        .fifo_data_in    (fifo_input_data_out),
-        .fifo_empty      (fifo_input_empty),
-        .output_busy     (output_busy),
-        .fifo_read_enable(fifo_read_enable),
-        .data_out        (packaging_data_out),
-        .data_valid      (packaging_data_valid),
-        .key_valid       (packaging_key_valid),
-        .error_flag      (packaging_error_flag)
+        .clk              (clk),
+        .reset_n          (reset_n),
+        .fifo_data_in     (fifo_input_data_out),
+        .fifo_empty       (fifo_input_empty),
+        .output_can_accept(output_can_accept),
+        .fifo_read_enable (fifo_read_enable),
+        .data_out         (packaging_data_out),
+        .data_valid       (packaging_data_valid),
+        .key_valid        (packaging_key_valid),
+        .error_flag       (packaging_error_flag)
     );
 
     aes_control aes_core (
@@ -75,7 +80,7 @@ module top (
         .cipher_data (cipher_text),
         .cipher_valid(cipher_valid),
         .uart_tx     (uart_tx),
-        .can_accept  (output_busy)
+        .can_accept  (output_can_accept)
     );
 
 endmodule
