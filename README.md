@@ -28,6 +28,26 @@ The system processes 19-byte packets with a custom state machine for integrity c
 * **Checksum:** XOR sum of Header + Payload.
 * **Logic:** Invalid checksums trigger an immediate drop.
 
+##  Verification Results
+Comparing the hardware output against the standard NIST test vectors.
+
+<table>
+  <tr>
+    <th align="center">Standard Reference (NIST/Docs)</th>
+    <th align="center">My Implementation (Terminal Output)</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="./docs/result_ref.png" width="100%" alt="Standard Result">
+    </td>
+    <td align="center">
+      <img src="./docs/my_result.png" width="100%" alt="My Result">
+    </td>
+  </tr>
+</table>
+
+> **Result:** The hardware output matches the reference bit-for-bit.
+
 ##  Development Workflow
 This project is built and verified entirely using **Open Source** tools:
 
