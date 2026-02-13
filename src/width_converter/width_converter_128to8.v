@@ -26,9 +26,9 @@ module width_converter_128to8 (
                 active  <= 1;
                 counter <= 0;
             end else if (active && !fifo_full) begin
-                out          <= buffer[7:0];
+                out          <= buffer[127:120];
                 write_enable <= 1'b1;
-                buffer       <= buffer >> 8;
+                buffer       <= buffer << 8;
                 counter      <= counter + 1;
 
                 if (counter == 15) begin
