@@ -33,9 +33,8 @@ SRCS = \
 	src/aes_core/aes_control.v \
 	src/width_converter/width_converter_128to8.v \
 	src/sending/sending.v \
-	src/top/top_uart_echo.v \
 	src/top/top.v \
-	tools/pulse_stretcher.v \
+	
 	
 
 YOSYS = yosys
